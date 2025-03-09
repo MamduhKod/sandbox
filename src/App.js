@@ -1,4 +1,6 @@
 import { useState } from 'react';
+
+
 function Square({value, onSquareClick}) {
   return(
    <button className="square" onClick={onSquareClick}>
@@ -11,8 +13,18 @@ function Square({value, onSquareClick}) {
 export default function Board() {
   const [xisNext, setXisNext] = useState(true);
   const [squares, setSquares] = useState(Array(9).fill(null));
+  const winner = calucateWiner(squares);
+  let status;
+  if (winner){
+    status = 'Winner:' + winner;
+  } else {
+    status = 'Next player:' + (xisNext ? 'X' : 'O');
+  }
 
   function handleCLick(i){
+    if (squares[i] || calucateWiner(squares)) {
+      return;
+    }
     const nextSquares = squares.slice();
     if (xisNext){
       nextSquares[i] = 'X';
@@ -24,6 +36,7 @@ export default function Board() {
   }
   return (
     <>
+    <div className="status">{status}</div>
     <div className='board-row'>
       <Square value={squares[0]} onSquareClick={()=>handleCLick(0)} />
       <Square value={squares[1]} onSquareClick={()=>handleCLick(1)} />
@@ -43,4 +56,24 @@ export default function Board() {
   </>
   );
 
+}
+
+function calucateWiner(squares){
+  const lines = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6]
+ ];
+ for (let i = 0; i< lines.length; i ++){
+  const [a,b,c] = lines[i];
+  if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]){
+    return squares[a];
+  }
+ }
+ return null;
 }
